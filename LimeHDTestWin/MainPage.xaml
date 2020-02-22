@@ -9,12 +9,21 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <NavigationView x:Name="nav" IsSettingsVisible="False" IsBackButtonVisible="Collapsed" PaneTitle="Playlist" SelectionChanged="nav_SelectionChanged">
+        <NavigationView x:Name="nav" 
+                        IsSettingsVisible="False" 
+                        IsBackButtonVisible="Collapsed" 
+                        IsPaneToggleButtonVisible="False" 
+                        PaneDisplayMode="LeftMinimal"
+                        PaneTitle="Playlist" 
+                        SelectionChanged="nav_SelectionChanged">
             <NavigationView.PaneFooter>
                 <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>
             </NavigationView.PaneFooter>
-            <MediaElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <MediaElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True">
+                <MediaElement.TransportControls>
+                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" ShowAndHideAutomatically="False" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" />
+                </MediaElement.TransportControls>
+            </MediaElement>
         </NavigationView>
-
     </Grid>
 </Page>

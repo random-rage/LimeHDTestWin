@@ -58,10 +58,54 @@ namespace LimeHDTestWin
                 nav.MenuItems.Add(chan);
         }
 
+        private void PlayNext()
+        {
+            bool found = false;
+            foreach (var item in nav.MenuItems)
+            {
+                if (found)
+                {
+                    nav.SelectedItem = item;
+                    break;
+                } 
+                else if (item == nav.SelectedItem)
+                    found = true;
+            }
+        }
+
+        private void PlayPrevious()
+        {
+            object prev = null;
+            foreach (var item in nav.MenuItems)
+            {
+                if (item == nav.SelectedItem)
+                    break;
+
+                prev = item;
+            }
+
+            if (prev != null)
+                nav.SelectedItem = prev;
+        }
+
         private void nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             player.Source = new Uri((args.SelectedItem as Channel).Url);
-            player.Play();
+        }
+
+        private void playerControls_PlaylistTapped(object sender, TappedRoutedEventArgs e)
+        {
+            nav.IsPaneOpen = true;
+        }
+
+        private void playerControls_PreviousTapped(object sender, TappedRoutedEventArgs e)
+        {
+            PlayPrevious();
+        }
+
+        private void playerControls_NextTapped(object sender, TappedRoutedEventArgs e)
+        {
+            PlayNext();
         }
     }
 }
