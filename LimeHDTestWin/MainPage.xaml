@@ -9,6 +9,12 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <NavigationView x:Name="nav" IsSettingsVisible="False" IsBackButtonVisible="Collapsed" PaneTitle="Playlist" SelectionChanged="nav_SelectionChanged">
+            <NavigationView.PaneFooter>
+                <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>
+            </NavigationView.PaneFooter>
+            <MediaElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </NavigationView>
 
     </Grid>
 </Page>

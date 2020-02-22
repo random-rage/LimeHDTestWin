@@ -7,6 +7,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,6 +31,11 @@ namespace LimeHDTestWin
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+        }
+
+        public static void Message(string title, string content)
+        {
+            new MessageDialog(content, title).ShowAsync();
         }
 
         /// <summary>
