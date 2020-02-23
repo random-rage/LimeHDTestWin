@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Media.Core;
 using Windows.Media.Streaming.Adaptive;
 using Windows.Storage;
@@ -60,6 +61,8 @@ namespace LimeHDTestWin
 
         private void Player_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            splitView.IsPaneOpen = false;
+
             if (playerControls.Visibility == Visibility.Collapsed)
             {
                 playerControls.Visibility = Visibility.Visible;
@@ -115,6 +118,38 @@ namespace LimeHDTestWin
         {
             AutoHideTimeout = 3;
             OpenPlaylist(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/playlist.json")));
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var response = await App.HttpClient.GetAsync(new Uri("http://info.limehd.tv/tech.php"));
+                    var content = await response.Content.ReadAsStringAsync();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => overlay.Children.Clear());
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(content);
+
+                        Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            foreach (var item in json)
+                                overlay.Children.Add(new TextBlock() { Text = $"{{{item.Key}: {item.Value}}}" });
+                        });
+                    }
+                    else
+                        Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            overlay.Children.Add(new TextBlock() { Text = content }));
+                }
+                catch (Exception ex)
+                {
+                    Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                    {
+                        overlay.Children.Clear();
+                        overlay.Children.Add(new TextBlock() { Text = ex.Message });
+                    });
+                }
+            });
         }
 
         private async void openBtn_Tapped(object sender, TappedRoutedEventArgs e)
@@ -163,6 +198,12 @@ namespace LimeHDTestWin
             _currentChannel = args.SelectedItem as Channel;
             player.Source = null;
             GC.Collect();
+
+            if (_currentChannel.MediaType == null)
+            {
+                App.Message("Error", "Failed to get channel information");
+                return;
+            }
 
             try
             {

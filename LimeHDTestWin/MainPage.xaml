@@ -19,11 +19,22 @@
             <NavigationView.PaneFooter>
                 <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>
             </NavigationView.PaneFooter>
-            <MediaPlayerElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True" IsFullWindow="False">
-                <MediaPlayerElement.TransportControls>
-                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" ResolutionChanged="playerControls_ResolutionChanged" FullscreenTapped="playerControls_FullscreenTapped" ShowAndHideAutomatically="False" />
-                </MediaPlayerElement.TransportControls>
-            </MediaPlayerElement>
+            <SplitView x:Name="splitView" IsPaneOpen="True" PanePlacement="Right">
+                <SplitView.Pane>
+                    <ScrollViewer>
+                        <StackPanel x:Name="overlay">
+                            <TextBlock>Запрос "http://info.limehd.tv/tech.php"...</TextBlock>
+                        </StackPanel>
+                    </ScrollViewer>
+                </SplitView.Pane>
+                <SplitView.Content>
+                    <MediaPlayerElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True" IsFullWindow="False">
+                        <MediaPlayerElement.TransportControls>
+                            <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" ResolutionChanged="playerControls_ResolutionChanged" FullscreenTapped="playerControls_FullscreenTapped" ShowAndHideAutomatically="False" />
+                        </MediaPlayerElement.TransportControls>
+                    </MediaPlayerElement>
+                </SplitView.Content>
+            </SplitView>
         </NavigationView>
     </Grid>
 </Page>

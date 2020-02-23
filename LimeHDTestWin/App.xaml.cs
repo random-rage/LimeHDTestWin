@@ -5,6 +5,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Windows.Web.Http;
 
 namespace LimeHDTestWin
 {
@@ -13,6 +14,8 @@ namespace LimeHDTestWin
     /// </summary>
     sealed partial class App : Application
     {
+        public static HttpClient HttpClient = new HttpClient();
+
         /// <summary>
         /// Инициализирует одноэлементный объект приложения. Это первая выполняемая строка разрабатываемого
         /// кода, поэтому она является логическим эквивалентом main() или WinMain().

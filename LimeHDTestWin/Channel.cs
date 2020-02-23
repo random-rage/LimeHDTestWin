@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
-using Windows.Web.Http;
 
 namespace LimeHDTestWin
 {
@@ -64,7 +64,7 @@ namespace LimeHDTestWin
         /// </summary>
         public Dictionary<uint, string> Streams
         {
-            get => (_streams == null) ? GetStreams() : _streams;
+            get => _streams ?? GetStreams();
             set => _streams = value;
         }
 
@@ -83,31 +83,30 @@ namespace LimeHDTestWin
             set
             {
                 Uri = new Uri(value);
-                try
-                {
-                    using (var httpClient = new HttpClient())
+                Task.Run(async () => {
+                    try
                     {
-                        httpClient.GetAsync(Uri).Completed = (requestInfo, requestStatus) =>
-                        {
-                            var content = requestInfo.GetResults().Content;
-                            MediaType = content.Headers.ContentType.MediaType;
+                        var response = await App.HttpClient.GetAsync(Uri);
+                        MediaType = response.Content.Headers.ContentType.MediaType;
 
-                            content.WriteToStreamAsync(M3UStream).Completed = (writingInfo, writingStatus) =>
+                        response.Content.WriteToStreamAsync(M3UStream).Completed = (writingInfo, writingStatus) =>
                             {
                                 Status = ChannelStatus.Success;
-                                Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>    // Меняем иконку в UI потоке
+                                Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                 {
                                     Icon = new SymbolIcon((Symbol)0xE93E); // Streaming
                                 });
                             };
-                        };
                     }
-                }
-                catch (Exception)
-                {
-                    Status = ChannelStatus.Error;
-                    Icon = new SymbolIcon((Symbol)0xE783); // Error
-                }
+                    catch (Exception)
+                    {
+                        Status = ChannelStatus.Error;
+                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            Icon = new SymbolIcon((Symbol)0xE783); // Error
+                        });
+                    }
+                });
             }
         }
 
