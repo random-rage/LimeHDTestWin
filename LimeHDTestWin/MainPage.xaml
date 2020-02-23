@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Page_Loaded">
 
     <Grid>
         <NavigationView x:Name="nav" 
@@ -19,11 +19,11 @@
             <NavigationView.PaneFooter>
                 <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>
             </NavigationView.PaneFooter>
-            <MediaElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True">
-                <MediaElement.TransportControls>
-                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" ShowAndHideAutomatically="False" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" />
-                </MediaElement.TransportControls>
-            </MediaElement>
+            <MediaPlayerElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True">
+                <MediaPlayerElement.TransportControls>
+                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" ShowAndHideAutomatically="False" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" ResolutionChanged="playerControls_ResolutionChanged" />
+                </MediaPlayerElement.TransportControls>
+            </MediaPlayerElement>
         </NavigationView>
     </Grid>
 </Page>

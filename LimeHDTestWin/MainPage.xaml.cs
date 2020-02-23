@@ -3,18 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Media.Core;
+using Windows.Media.Streaming.Adaptive;
+using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
 
@@ -25,6 +20,8 @@ namespace LimeHDTestWin
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        Channel _currentChannel = null;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -38,6 +35,11 @@ namespace LimeHDTestWin
             if (file == null)
                 return;
 
+            OpenPlaylist(file);
+        }
+
+        private async void OpenPlaylist(StorageFile file)
+        {
             List<Channel> channels;
 
             using (var fileReader = new StreamReader(await file.OpenStreamForReadAsync()))
@@ -56,6 +58,8 @@ namespace LimeHDTestWin
 
             foreach (var chan in channels)
                 nav.MenuItems.Add(chan);
+
+            nav.IsPaneOpen = true;
         }
 
         private void PlayNext()
@@ -88,9 +92,27 @@ namespace LimeHDTestWin
                 nav.SelectedItem = prev;
         }
 
-        private void nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        private async void nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            player.Source = new Uri((args.SelectedItem as Channel).Url);
+            _currentChannel = args.SelectedItem as Channel;
+            player.Source = null;
+            GC.Collect();
+
+            try
+            {
+                player.Source = MediaSource.CreateFromAdaptiveMediaSource((await AdaptiveMediaSource.CreateFromStreamAsync(
+                    _currentChannel.M3UStream.GetInputStreamAt((ulong)SeekOrigin.Begin),
+                    _currentChannel.Uri,
+                    _currentChannel.MediaType
+                )).MediaSource);
+
+                playerControls.Resolutions = _currentChannel.Streams.Values;
+                playerControls.SelectedResolution = _currentChannel.Streams[(player.Source as MediaSource).AdaptiveMediaSource.InitialBitrate];
+            }
+            catch (Exception ex)
+            {
+                App.Message("Unexpected error", ex.Message);
+            }
         }
 
         private void playerControls_PlaylistTapped(object sender, TappedRoutedEventArgs e)
@@ -106,6 +128,34 @@ namespace LimeHDTestWin
         private void playerControls_NextTapped(object sender, TappedRoutedEventArgs e)
         {
             PlayNext();
+        }
+
+        private async void playerControls_ResolutionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_currentChannel == null || playerControls.SelectedResolution == null)
+                return;
+
+            try
+            {
+                var bitrate = (from s in _currentChannel.Streams where s.Value == playerControls.SelectedResolution select s.Key).FirstOrDefault();
+                var mediaSource = player.Source as MediaSource;
+
+                player.MediaPlayer.Pause();
+                mediaSource.AdaptiveMediaSource.DesiredMaxBitrate = bitrate;
+                mediaSource.AdaptiveMediaSource.InitialBitrate = bitrate;
+                mediaSource.AdaptiveMediaSource.DesiredMinBitrate = bitrate;
+                player.Source = mediaSource;
+                player.MediaPlayer.Play();
+            }
+            catch (Exception ex)
+            {
+                App.Message("Unexpected error", ex.Message);
+            }
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            OpenPlaylist(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/playlist.json")));
         }
     }
 }

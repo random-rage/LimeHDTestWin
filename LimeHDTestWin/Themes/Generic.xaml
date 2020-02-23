@@ -9,6 +9,11 @@
                 <ControlTemplate TargetType="local:LimeHDMediaTransportControls">
                     <Grid x:Name="RootGrid" Background="Transparent">
                         <Grid.Resources>
+                            <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+                                <Setter Property="Width" Value="128" />
+                                <Setter Property="Height" Value="36" />
+                                <Setter Property="AllowFocusOnInteraction" Value="True" />
+                            </Style>
                             <!-- New AppBar button style 48x48 pixels in size -->
                             <Style x:Key="AppBarButtonStyle" TargetType="AppBarButton" BasedOn="{StaticResource AppBarButtonRevealStyle}">
                                 <Setter Property="Width" Value="{ThemeResource MTCMediaButtonWidth}" />
@@ -620,7 +625,7 @@
                                             <AppBarButton x:Name='PlaylistButton'
                                                     Icon='List'
                                                     Style='{StaticResource AppBarButtonStyle}'
-                                                    MediaTransportControlsHelper.DropoutOrder='255'
+                                                    MediaTransportControlsHelper.DropoutOrder='1'
                                                     Visibility='Visible'/>
                                             <AppBarButton x:Name='VolumeMuteButton'
                                                     Style='{StaticResource AppBarButtonStyle}'
@@ -752,18 +757,16 @@
                                                     <SymbolIcon x:Name="RepeatSymbol" Symbol="RepeatAll" />
                                                 </AppBarToggleButton.Icon>
                                             </AppBarToggleButton>
+                                            <AppBarElementContainer Width='128' MediaTransportControlsHelper.DropoutOrder='1'>
+                                                <ComboBox x:Name='ResolutionCombo' 
+                                                          Style='{StaticResource ComboBoxStyle}'
+                                                          Visibility="Collapsed" />
+                                            </AppBarElementContainer>
                                             <AppBarButton x:Name='ZoomButton'
                                                     Style='{StaticResource AppBarButtonStyle}'
                                                     MediaTransportControlsHelper.DropoutOrder='9'>
                                                 <AppBarButton.Icon>
                                                     <FontIcon Glyph="&#xE799;" />
-                                                </AppBarButton.Icon>
-                                            </AppBarButton>
-                                            <AppBarButton x:Name='CastButton'
-                                                    Style='{StaticResource AppBarButtonStyle}'
-                                                    MediaTransportControlsHelper.DropoutOrder='11'>
-                                                <AppBarButton.Icon>
-                                                    <FontIcon Glyph="&#xEC15;" />
                                                 </AppBarButton.Icon>
                                             </AppBarButton>
                                             <AppBarButton x:Name='CompactOverlayButton'

@@ -1,0 +1,6 @@
+[
+	{"name": "VRT TV", "url": "https://live-cdne13.cdnvideo.ru/cdne13/cdne13.sdp/playlist.m3u8"},
+	{"name": "Soln-TV", "url": "https://hls-solntv.cdnvideo.ru/solntv/solntv.sdp/playlist.m3u8"},
+	{"name": "TVR24", "url": "https://live-tvr24.cdnvideo.ru/tvr24/tvr24.sdp/playlist.m3u8"},
+	{"name": "Huzur TV", "url": "https://hls-mycdn08724960135.cdnvideo.ru/mycdn08724960135/stream1/playlist.m3u8"}
+]
