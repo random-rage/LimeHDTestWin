@@ -9,6 +9,16 @@
                 <ControlTemplate TargetType="local:LimeHDMediaTransportControls">
                     <Grid x:Name="RootGrid" Background="Transparent">
                         <Grid.Resources>
+                            <Style x:Key="ButtonStyle" TargetType="Button">
+                                <Setter Property="Background" Value="{ThemeResource MediaTransportControlsPanelBackground}" />
+                                <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+                                <Setter Property="FontSize" Value="24" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Width" Value="48" />
+                                <Setter Property="Height" Value="48" />
+                                <Setter Property="AllowFocusOnInteraction" Value="True" />
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Style>
                             <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
                                 <Setter Property="Width" Value="128" />
                                 <Setter Property="Height" Value="36" />
@@ -789,6 +799,8 @@
                                 </Border>
                             </Grid>
                         </Border>
+                        <Button x:Name="PreviousButton" Content="&#xE760;" HorizontalAlignment="Left" Style="{StaticResource ButtonStyle}" />
+                        <Button x:Name="NextButton" Content="&#xE761;" HorizontalAlignment="Right" Style="{StaticResource ButtonStyle}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

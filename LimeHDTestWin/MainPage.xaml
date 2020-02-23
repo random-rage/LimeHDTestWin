@@ -19,9 +19,9 @@
             <NavigationView.PaneFooter>
                 <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>
             </NavigationView.PaneFooter>
-            <MediaPlayerElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True">
+            <MediaPlayerElement x:Name="player" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AreTransportControlsEnabled="True" IsFullWindow="False">
                 <MediaPlayerElement.TransportControls>
-                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" ShowAndHideAutomatically="False" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" ResolutionChanged="playerControls_ResolutionChanged" />
+                    <local:LimeHDMediaTransportControls x:Name="playerControls" IsPreviousTrackButtonVisible="True" IsNextTrackButtonVisible="True" PlaylistTapped="playerControls_PlaylistTapped" PreviousTapped="playerControls_PreviousTapped" NextTapped="playerControls_NextTapped" ResolutionChanged="playerControls_ResolutionChanged" FullscreenTapped="playerControls_FullscreenTapped" ShowAndHideAutomatically="False" />
                 </MediaPlayerElement.TransportControls>
             </MediaPlayerElement>
         </NavigationView>

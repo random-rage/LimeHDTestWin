@@ -21,21 +21,70 @@ namespace LimeHDTestWin
     public sealed partial class MainPage : Page
     {
         Channel _currentChannel = null;
+        int _autoHideTimeout = 0;
+        DateTime _autoHideTimeOrigin;
+        DispatcherTimer _timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(500) };
+
+        /// <summary>
+        /// Таймаут скрытия интерфейса в секундах
+        /// </summary>
+        public int AutoHideTimeout
+        {
+            get => _autoHideTimeout;
+            set
+            {
+                if (value > 0)
+                {
+                    _autoHideTimeout = value;
+                    _autoHideTimeOrigin = DateTime.Now;
+                    player.PointerMoved += Player_PointerMoved;
+                    player.Tapped += Player_Tapped; ;
+                    _timer.Tick += Timer_Tick;
+                    _timer.Start();
+                }
+                else
+                {
+                    _autoHideTimeout = 0;
+                    _timer.Stop();
+                    _timer.Tick -= Timer_Tick;
+                    player.PointerMoved -= Player_PointerMoved;
+                    player.Tapped -= Player_Tapped;
+                }
+            }
+        }
 
         public MainPage()
         {
             this.InitializeComponent();
         }
 
-        private async void openBtn_Tapped(object sender, TappedRoutedEventArgs e)
+        private void Player_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var picker = new FileOpenPicker() { FileTypeFilter = { ".json" } };
-            var file = await picker.PickSingleFileAsync();
+            if (playerControls.Visibility == Visibility.Collapsed)
+            {
+                playerControls.Visibility = Visibility.Visible;
+                _autoHideTimeOrigin = DateTime.Now;
+                _timer.Start();
+            }
+            else
+            {
+                playerControls.Visibility = Visibility.Collapsed;
+                _timer.Stop();
+            }
+        }
 
-            if (file == null)
+        private void Player_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            _autoHideTimeOrigin = DateTime.Now;
+        }
+
+        private void Timer_Tick(object sender, object e)
+        {
+            if ((DateTime.Now - _autoHideTimeOrigin).TotalSeconds < _autoHideTimeout)
                 return;
 
-            OpenPlaylist(file);
+            playerControls.Visibility = Visibility.Collapsed;
+            _timer.Stop();
         }
 
         private async void OpenPlaylist(StorageFile file)
@@ -60,6 +109,23 @@ namespace LimeHDTestWin
                 nav.MenuItems.Add(chan);
 
             nav.IsPaneOpen = true;
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            AutoHideTimeout = 3;
+            OpenPlaylist(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/playlist.json")));
+        }
+
+        private async void openBtn_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var picker = new FileOpenPicker() { FileTypeFilter = { ".json" } };
+            var file = await picker.PickSingleFileAsync();
+
+            if (file == null)
+                return;
+
+            OpenPlaylist(file);
         }
 
         private void PlayNext()
@@ -113,6 +179,9 @@ namespace LimeHDTestWin
             {
                 App.Message("Unexpected error", ex.Message);
             }
+
+            if (playerControls.Visibility == Visibility.Visible && !_timer.IsEnabled)
+                _timer.Start();        
         }
 
         private void playerControls_PlaylistTapped(object sender, TappedRoutedEventArgs e)
@@ -153,9 +222,9 @@ namespace LimeHDTestWin
             }
         }
 
-        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        private void playerControls_FullscreenTapped(object sender, TappedRoutedEventArgs e)
         {
-            OpenPlaylist(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/playlist.json")));
+            playerControls.IsPlaylistButtonEnabled = player.IsFullWindow;
         }
     }
 }
