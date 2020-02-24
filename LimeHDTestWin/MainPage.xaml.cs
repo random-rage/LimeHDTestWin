@@ -21,6 +21,7 @@ namespace LimeHDTestWin
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        List<Channel> _channels = null;
         Channel _currentChannel = null;
         int _autoHideTimeout = 0;
         DateTime _autoHideTimeOrigin;
@@ -92,24 +93,21 @@ namespace LimeHDTestWin
 
         private async void OpenPlaylist(StorageFile file)
         {
-            List<Channel> channels;
-
             using (var fileReader = new StreamReader(await file.OpenStreamForReadAsync()))
             {
                 var jsonSerializer = new JsonSerializer();
-                channels = jsonSerializer.Deserialize(fileReader, typeof(List<Channel>)) as List<Channel>;
+                _channels = jsonSerializer.Deserialize(fileReader, typeof(List<Channel>)) as List<Channel>;
             }
 
-            if (channels == null)
+            if (_channels == null)
             {
                 App.Message("Error", "Can't load playlist");
                 return;
             }
 
             nav.MenuItems.Clear();
-
-            foreach (var chan in channels)
-                nav.MenuItems.Add(chan);
+            foreach (var chan in _channels)
+                nav.MenuItems.Add(chan.NavigationItem);
 
             nav.IsPaneOpen = true;
         }
@@ -195,9 +193,21 @@ namespace LimeHDTestWin
 
         private async void nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            _currentChannel = args.SelectedItem as Channel;
+            _currentChannel = _channels.FirstOrDefault((chan) => chan.NavigationItem == (args.SelectedItem as NavigationViewItem));
             player.Source = null;
             GC.Collect();
+
+            switch (_currentChannel?.Status)
+            {
+                case ChannelStatus.Loading:
+                    App.Message("Error", "Channel is not ready");
+                    return;
+                case ChannelStatus.Success:
+                    break;
+                default:
+                    App.Message("Error", "Loading channel failed");
+                    return;
+            }
 
             if (_currentChannel.MediaType == null)
             {
@@ -240,7 +250,7 @@ namespace LimeHDTestWin
             PlayNext();
         }
 
-        private async void playerControls_ResolutionChanged(object sender, SelectionChangedEventArgs e)
+        private void playerControls_ResolutionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_currentChannel == null || playerControls.SelectedResolution == null)
                 return;

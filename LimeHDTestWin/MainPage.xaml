@@ -14,7 +14,7 @@
                         IsBackButtonVisible="Collapsed" 
                         IsPaneToggleButtonVisible="False" 
                         PaneDisplayMode="LeftMinimal"
-                        PaneTitle="Playlist" 
+                        PaneTitle="Playlist"
                         SelectionChanged="nav_SelectionChanged">
             <NavigationView.PaneFooter>
                 <NavigationViewItem x:Name="openBtn" Icon="OpenFile" Content="Open..." Tapped="openBtn_Tapped"/>

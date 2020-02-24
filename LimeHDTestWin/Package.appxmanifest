@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="a0b53c99-01a5-4d95-b773-e8ba423d2814"
-    Publisher="CN=Admin"
+    Name="LimeHDTestWin"
+    Publisher="CN=Sergey Shugaev"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="a0b53c99-01a5-4d95-b773-e8ba423d2814" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>LimeHDTestWin</DisplayName>
-    <PublisherDisplayName>Admin</PublisherDisplayName>
+    <PublisherDisplayName>Sergey Shugaev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

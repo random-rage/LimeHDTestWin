@@ -30,7 +30,7 @@ namespace LimeHDTestWin
         Error = 2
     }
 
-    class Channel : NavigationViewItem
+    class Channel
     {
         Dictionary<uint, string> _streams = null;
 
@@ -48,11 +48,16 @@ namespace LimeHDTestWin
         /// Название канала
         /// </summary>
         [JsonProperty("name")]
-        public new string Name
+        public string Name
         {
-            get => Content?.ToString();
-            set => Content = value;
+            get => NavigationItem.Content?.ToString();
+            set => NavigationItem.Content = value;
         }
+
+        /// <summary>
+        /// Связанный элемент управления
+        /// </summary>
+        public NavigationViewItem NavigationItem { get; set; } = new NavigationViewItem() { Icon = new SymbolIcon((Symbol)0xF16A) };
 
         /// <summary>
         /// Состояние получение информации о канале
@@ -87,65 +92,45 @@ namespace LimeHDTestWin
                     try
                     {
                         var response = await App.HttpClient.GetAsync(Uri);
+                        await response.Content.WriteToStreamAsync(M3UStream);
                         MediaType = response.Content.Headers.ContentType.MediaType;
 
-                        response.Content.WriteToStreamAsync(M3UStream).Completed = (writingInfo, writingStatus) =>
-                            {
-                                Status = ChannelStatus.Success;
-                                Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                {
-                                    Icon = new SymbolIcon((Symbol)0xE93E); // Streaming
-                                });
-                            };
+                        Status = ChannelStatus.Success;
+                        NavigationItem.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            NavigationItem.Icon = new SymbolIcon((Symbol)0xE93E); // Streaming
+                        });
                     }
                     catch (Exception)
                     {
                         Status = ChannelStatus.Error;
-                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        NavigationItem.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            Icon = new SymbolIcon((Symbol)0xE783); // Error
+                            NavigationItem.Icon = new SymbolIcon((Symbol)0xE783); // Error
                         });
                     }
                 });
             }
         }
 
-        public Channel()
-        {
-            Icon = new SymbolIcon((Symbol)0xF16A); // ProgressRingDots
-        }
-        
         private Dictionary<uint, string> GetStreams()
         {
-            switch (Status)
+            try
             {
-                case ChannelStatus.Loading:
-                    App.Message("Error", "Channel is not ready");
-                    break;
-                case ChannelStatus.Success:
-                    try
-                    {
-                        M3UFileInfo m3uInfo;
+                M3UFileInfo m3uInfo;
 
-                        using (var m3uReader = new M3UFileReader(M3UStream.GetInputStreamAt((ulong)SeekOrigin.Begin).AsStreamForRead()))
-                            m3uInfo = m3uReader.Read();
+                using (var m3uReader = new M3UFileReader(M3UStream.GetInputStreamAt((ulong)SeekOrigin.Begin).AsStreamForRead()))
+                    m3uInfo = m3uReader.Read();
 
-                        return _streams = m3uInfo.Streams
-                            .Where(s => s.Resolution != null && s.Bandwidth != null)
-                            .ToDictionary(s => (uint)s.Bandwidth, s => s.Resolution);
-                    }
-                    catch (Exception ex)
-                    {
-                        App.Message("Unexpected error", ex.Message);
-                    }
-                    break;
-                case ChannelStatus.Error:
-                    App.Message("Error", "Loading channel failed");
-                    break;
-                default:
-                    break;
+                return _streams = m3uInfo.Streams
+                    .Where(s => s.Resolution != null && s.Bandwidth != null)
+                    .ToDictionary(s => (uint)s.Bandwidth, s => s.Resolution);
             }
-            return new Dictionary<uint, string>();
+            catch (Exception ex)
+            {
+                App.Message("Unexpected error", ex.Message);
+                return new Dictionary<uint, string>();
+            }
         }
     }
 }
